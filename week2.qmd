@@ -1,7 +1,7 @@
 ---
 title: "rbasics"
-format: html
-editor: visual
+# format: html
+format: ipynb
 ---
 
 # Some tools we'll meet
@@ -39,7 +39,6 @@ editor: visual
 
 ```{r}
 rm(list = ls())
-
 # no packages to load since we're talking about Base R!
 ```
 
@@ -635,6 +634,16 @@ mean(sim_results_df$muCapture)
 
 # Second part
 
+    -   `read.csv` for reading datasets
+
+    -   `dplyr`
+
+    -   `ggplot2`
+
+    -   `ggPlotThemes`
+    
+# csv
+
 Consider this `csv` file:
 
     Name, Age, Height
@@ -665,7 +674,6 @@ df <- data.frame(Name, Age)
 write.csv(df, "./data/data.csv", row.names=T)
 file_location <- "./data/data.csv"
 data_from_csv <- read.csv(file_location)
-
 data_from_csv %>% knitr::kable()
 ```
 
