@@ -1,0 +1,950 @@
+---
+title: "rbasics"
+format: html
+editor: visual
+---
+
+# Some tools we'll meet
+
+-   Facts & extensions from the reading
+    -   Create vectors using `c()`, `:`, `seq()`, `rep()`.
+
+    -   Select vector elements using the square brackets `[ ]` (have you done this before?).
+
+    -   Program using
+
+        -   `for` loop,
+        -   `while` loop,
+        -   `if` statements,
+
+    -   Write an original `function` (where have you done this before?)
+
+    -   Subsetting with `[` (especially for vectors & data frames)
+
+    -   Subsetting with `$` (especially for data frames & lists)
+
+    -   Subsetting with `[[` (especially for lists)
+
+    -   `read.csv` for reading datasets
+
+    -   `dplyr`
+
+    -   `ggplot2`
+
+    -   `ggPlotThemes`
+-   [RStudio Cheat Sheet (on Canvas)](https://www.rstudio.com/wp-content/uploads/2016/05/base-r.pdf)
+-   Nested loops (e.g., data frame indices)
+-   Extracting elements from arbitrary objects (e.g. a regression model object)
+-   Programming a simulation with & without loops
+
+```{r}
+rm(list = ls())
+
+# no packages to load since we're talking about Base R!
+```
+
+------------------------------------------------------------------------
+
+# Goals for today?
+
+1.  in your adventures with R programming you'll often encounter code written in base R, so we'll meet some common syntax.
+
+2.  introduce loops as an intuitive approach to iterative tasks
+
+3.  meet the basic syntax to write your very own R functions
+
+4.  program a simulation study to better understand a counter-intuitive concept
+
+e.g., Confidence interval statements:
+
+> "We are 95% confident that the average amount of carbon stored in each square kilometer of tropical forest is between 9,600 and 13,600 tons"
+
+> 95% CI: 11,600 ± 2⋅1000 = (9,600, 13,600)
+
+What's wrong with saying "there's a 95% chance that the average amount of carbon stored in each square kilometer of tropical forest is between 9,600 and 13,600 tons" ??
+
+------------------------------------------------------------------------
+
+# Creating vectors
+
+#### `c( )` is most common by far
+
+```{r, echo = TRUE}
+grade <- c(2, 5, NA, 5)
+grade 
+mean(grade)
+
+# we need argument `na.rm = TRUE
+mean(grade, na.rm = TRUE)
+```
+
+#### Shortcut using `:` for numbers in sequence
+
+```{r, echo=TRUE}
+2:6
+
+twoThruSix <- 2:6
+twoThruSix
+
+
+```
+
+#### Sequences using `seq( )`
+
+```{r, echo=TRUE}
+seq(2, 5, by = 0.2)
+```
+
+#### Repeating a sequence using `rep( )`
+
+```{r, echo=TRUE}
+rep(c("A", "B", "C"), times = 3)
+```
+
+# Selecting vector elements with square brackets
+
+```{r, echo=TRUE}
+# create a vector
+x <- c("A", "B", "C", 1, 2, 3)
+x
+```
+
+#### Select only element 4
+
+```{r, echo=TRUE}
+x[4]
+```
+
+#### Select elements 2 thru 4
+
+```{r, echo=TRUE}
+x[2:4]
+```
+
+#### Select elements 1 and 5
+
+```{r, echo=TRUE}
+x[c(1, 5)]
+```
+
+## Excluding Vector Elements with square brackets
+
+```{r, echo=TRUE}
+# create a vector
+x <- c("A", "B", "C", 1, 2, 3)
+x
+```
+
+#### Select all elements except element 4
+
+```{r, echo=TRUE}
+x[-4]
+
+```
+
+#### Select all elements except elements 1, 4, and 6
+
+```{r, echo=TRUE}
+x[-c(1, 4, 6)]
+```
+
+------------------------------------------------------------------------
+
+# Selecting Vector Elements that match a Condition
+
+```{r, echo=TRUE}
+# create a vector of numbers
+y <- c(1, -1,  6, -2,  6,  5,  9,  1, 10, 10)
+y
+```
+
+#### Select elements equal to 10
+
+```{r, echo=TRUE}
+y[y == 10]
+```
+
+#### Select elements less than zero
+
+```{r, echo=TRUE}
+y[y < 0]
+```
+
+#### Select elements in the set {1, 2, 5}
+
+```{r, echo=TRUE}
+y[y %in% c(1, 2, 5)]
+```
+
+------------------------------------------------------------------------
+
+# Programming with `for` Loops
+
+#### Basic `for` Loop Syntax:
+
+    for (index in sequence) {  
+      do something  
+    } 
+
+#### Here's a `for` loop that will "do something" for each number from 1 to 4
+
+```{r, echo=TRUE}
+for (i in 1:4) {
+  j <- i + 10     # add 10 to the "current" value of `i` in each step of the loop
+  print(j)        # print the result of `j` for each step of the loop
+}
+
+```
+
+#### This is often used to iterate over each value in a vector where x\[i\] refers to element `i` of the vector `x`
+
+```{r, echo=TRUE}
+byFives <- seq(10, 37, by = 5)   # vector counts by 5
+byFives 
+
+for (i in 1:length(byFives)) {  # `length(byFives)` is the number of elements in the `byFives` vector 
+  j <- byFives[i] / 3           # divide element `i` of the `fives` vector by 3 in each step of the loop
+  print(j)                      # print the result of `j` for each step of the loop
+}
+
+```
+
+------------------------------------------------------------------------
+
+# Programming with `while` Loops
+
+#### Basic `while` Loop Syntax:
+
+    while (true condition){
+      do something
+    }
+
+#### Here's a `while` loop that prints the index `i` while it is less than 5:
+
+```{r}
+i <- 1            # initialize our index variable
+
+while (i < 5) {   # set the condition of the `while` loop
+  print(i)        # print the value of `i` in each step of the loop
+  i <- i + 1      # increment `i` for the next trip through the loop
+}
+```
+
+------------------------------------------------------------------------
+
+# Programming with functions (that you build yourself!)
+
+#### Basic `function` Syntax:
+
+    function_name <- function(arg1) {
+      do something
+      return(new_object)
+    }
+
+#### Here's a function that takes one number as an argument and squares it:
+
+```{r, echo = TRUE}
+squared <- function(x) {       # the function will be called "squared" and takes one argument
+  calculation <- x * x         # this shows what the function will do with the `x` argument
+  return(calculation)          # this tells the function to display the result of `calculation`
+}
+
+# Nothing happens until you call the new `squared( )` function that you've created:
+squared(3)
+
+
+
+```
+
+------------------------------------------------------------------------
+
+# Programming with conditional flow (if-else)
+
+#### Basic `if` Statement Syntax:
+
+    if (condition) {
+      do something
+    } else {
+      do something different
+    }
+
+```{r}
+squared_better <- function(x) {       # the function will be called "squared" and takes one argument
+  if (!is.numeric(x)) {
+    print("error: This function requires a numeric argument")
+  } else {
+    calculation <- x * x         # this shows what the function will do with the `x` argument
+    return(calculation)          # this tells the function to display the result of `calculation`
+  }
+}
+
+squared_better("1")
+```
+
+```{r, echo=TRUE}
+var <- 5           # some variable set to 5
+
+if (var > 3) {     # if condition
+  print('Yes')     # do this if condition is satisfied
+} else {
+  print('No')      # do this if condition is NOT satisfied
+}
+
+```
+
+These `if` statements work well with other programming tools:
+
+-   Inside a loop you might test a condition with each iteration through the loop and provide alternate instructions depending on the outcome.\
+-   As part of a `function` you might provide different instructions depending on the argument supplied.
+
+#### Fine to link as many conditions as needed:
+
+    if (condition){
+      do something
+    } else if (another condition) {
+      do something else
+    } else {
+      do something different
+    }
+
+------------------------------------------------------------------------
+
+# Data Frame operations
+
+#### A special case of a list where all elements are the same length.
+
+```{r, echo=TRUE}
+letters <- c("A", "B", "C", "D", "E", "F")    # create a vector
+numbers <- 1:6                                # create another vector
+
+df <- data.frame(numbers, letters)            # combine them as a data frame
+df
+```
+
+You can use square brackets to select specific elements based on \[row, column\]...
+
+#### Select element in row 3 and column 2
+
+```{r, echo=TRUE}
+df[3, 2]
+```
+
+#### Select all elements in row 4 (note comma placement)
+
+```{r, echo=TRUE}
+df[4, ]
+```
+
+#### Select all elements in column 2 (note comma placement again)
+
+```{r, echo=TRUE}
+df[ , 2]
+```
+
+------------------------------------------------------------------------
+
+# Nested looping (e.g., over rows and columns)
+
+```{r}
+df2 <- data.frame(NULL)  # we need a placeholder, and it should be a data.frame 
+Rows <- c(1:6)
+Cols <- c(1:5)
+
+
+for (j in 1:length(Cols)) {           # outer loop processed after each complete cycle of inner loop
+  for (i in 1:length(Rows)) {         # inner loop processed most frequently
+    df2[i, j] <- paste("Row", i, ", Col", j)  
+  }
+}
+
+df2
+```
+
+------------------------------------------------------------------------
+
+# The dollar sign `$` operator for data frames
+
+```{r, echo=TRUE}
+df <- data.frame(numbers, letters)    # same data frame used before
+df
+```
+
+#### Dollar sign `$` used to select a variable in a data frame by name (and simplify class)
+
+```{r, echo=TRUE}
+df$numbers
+```
+
+#### Dollar sign `$` used to add a variable in a data frame by name
+
+```{r, echo=TRUE}
+df$combo <- paste(letters, "-", numbers, "combo")   # paste is a handy function too
+
+df$trueFalse <- c(T, F, T, T, F, F)
+df
+
+
+```
+
+------------------------------------------------------------------------
+
+# Dollar sign `$` operator for other objects
+
+#### Consider a simple linear regression model (`mtcars` data set):
+
+```{r, echo=TRUE}
+# this is a model predicting miles per gallon from weight of the car
+CarModel <- lm(mpg ~ wt, data = mtcars)
+
+# same model, different syntax--harder to read, but $ helps auto-fill variable names
+CarModel2 <- lm(mtcars$mpg ~ mtcars$wt)  
+
+```
+
+#### The `summary( )` command will provide a useful summary of the model information
+
+```{r, echo=TRUE}
+summary(CarModel)
+```
+
+#### The `CarModel` object includes lots more though, as we can see through an `str()` command
+
+```{r}
+library(tidyverse)
+glimpse(CarModel)
+```
+
+We can extract that information from `CarModel` using the dollar sign `$` operator.
+
+How about coefficient estimates:
+
+```{r, echo=TRUE}
+CarModel$coefficients
+```
+
+```{r}
+# compare methods to select various elements...
+
+# double square brackets
+CarModel[["model"]]
+CarModel[["coefficients"]]
+
+# dollar sign
+CarModel$model
+CarModel$coefficients
+
+# single square brackets... what do you expect from [ ...] ?  Would that make sense here?
+CarModel["model"]         
+CarModel["coefficients"]
+
+```
+
+We often show residuals vs fitted values to evaluate a `CarModel` fit. The `CarModel` object stores that information for your use, so you can extract it with the `$` operator to easily retrieve it:
+
+```{r, echo=TRUE}
+library(tidyverse)
+
+require(ggplot2)    # note--base r does plots too, but `ggplot2` gives you much more control
+
+ggplot() + 
+  geom_point(aes(x = CarModel$fitted.values, y = CarModel$residuals))
+```
+
+For the sake of illustration, suppose you want to color the residuals by the number of cylinders as a proxy for engine size. (note it would usually make more sense to include cylinder as a variable in the model, but we're just showing a way that you can pull information from compatible data sets together on a plot)
+
+```{r, echo=TRUE}
+require(ggplot2)
+
+ggplot() + 
+  geom_point(aes(x = CarModel$fitted.values, y = CarModel$residuals, color = as.factor(mtcars$cyl)))
+```
+
+------------------------------------------------------------------------
+
+# Simulation
+
+#### Result from a real study about carbon capture in tropical forests:
+
+> 95% CI: 11,600 ± 2⋅1000 = (9,600, 13,600)
+
+> "We are 95% confident that the average amount of carbon stored in each square kilometer of tropical forest is between 9,600 and 13,600 tons"
+
+What's wrong with saying "there's a 95% chance that the average amount of carbon stored in each square kilometer of tropical forest is between 9,600 and 13,600 tons" ??
+
+```{r}
+normDatSim <- rnorm(n = 15, mean = 11600, sd = 1000)
+# normDatSim <- rexp(n = 15, rate = 1/11600)  # a non-normal distribution for comparison
+
+ggplot() +
+  geom_density(aes(normDatSim))
+
+t.test(normDatSim)
+
+```
+
+------------------------------------------------------------------------
+
+# Simulation with Loops
+
+```{r}
+# simulation settings
+nsimulations <- 100
+mu <- 11600
+sigma <- 1000
+sampleSize <- 15
+
+# initialize a data frame where we can store various results at each step in our simulation
+ConfIntDat <- data.frame(simulationID = rep(NA, nsimulations), 
+                         lower = rep(NA, nsimulations), 
+                         upper = rep(NA, nsimulations), 
+                         captureMu = rep(NA, nsimulations))
+
+# use a loop to simulate many results and store them at each step
+for (i in 1:nsimulations) {                                   # increment 'i' from 1 to 'nsimulations'
+  normDatSim <- rnorm(n = sampleSize, mean = mu, sd = sigma)  # simulate a new random sample
+  ConfIntDat$simulationID[i] <- i                             # store an ID for each sample
+  ConfIntDat$lower[i] <- t.test(normDatSim)$conf.int[1]       # store the lower bound of our CI
+  ConfIntDat$upper[i] <- t.test(normDatSim)$conf.int[2]       # store upper bound of our CI
+  ConfIntDat$captureMu[i] <- (mu > ConfIntDat$lower[i] & mu < ConfIntDat$upper[i])
+
+}
+
+ConfIntDat
+
+# let's plot it!
+library(tidyverse)
+
+ConfIntDat %>%
+  ggplot() +
+  geom_segment(aes(    x = lower,    y = simulationID, 
+                    xend = upper, yend = simulationID, 
+                   color = captureMu)) + 
+  geom_vline(aes(xintercept = mu)) + 
+  xlab("Simulated confidence interval from Normal data") + 
+  ylab("Index of a CI based on a simulated random sample")
+
+
+# how often did our 95% CI actually capture mu? Easy!
+
+mean(ConfIntDat$captureMu)
+
+
+```
+
+-   Can you see why we call it a "95% confidence interval"?
+-   Tinker with the simulation settings and try again
+    -   Explore changes to `nsimulations`, `mu`, `sigma`, and `sampleSize`
+    -   Try changing one at a time to larger or smaller values and observe what happens
+
+------------------------------------------------------------------------
+
+# another way... (some would say "The R Way")
+
+-   we can make a function that handles the guts of the loop and then call the function as an argument
+-   then we can leverage more efficient tools to do things way faster (vectorized functions, parallel processing, etc)
+
+### Here's the original code...
+
+    # simulation settings
+    nsimulations <- 100
+    mu <- 34
+    sigma <- 5
+    sampleSize <- 15
+
+    # initialize a data frame where we can store various results at each step in our simulation
+    ConfIntDat <- data.frame(simulationID = rep(NA, nsimulations), 
+                             lower = rep(NA, nsimulations), 
+                             upper = rep(NA, nsimulations), 
+                             captureMu = rep(NA, nsimulations))
+
+    # use a loop to simulate many results and store them at each step
+    for (i in 1:nsimulations) {                                   # increment 'i' from 1 to 'nsimulations'
+      normDatSim <- rnorm(n = sampleSize, mean = mu, sd = sigma)  # simulate a new random sample
+      ConfIntDat$simulationID[i] <- i                             # store an ID for each sample
+      ConfIntDat$lower[i] <- t.test(normDatSim)$conf.int[1]       # store the lower bound of our CI
+      ConfIntDat$upper[i] <- t.test(normDatSim)$conf.int[2]       # store upper bound of our CI
+      ConfIntDat$captureMu[i] <- (mu > ConfIntDat$lower[i] & mu < ConfIntDat$upper[i])
+
+    }
+
+### making a function...
+
+-   the simulation settings will be arguments we (or another user) might want to change
+-   when in doubt, it's better to program arguments rather than "hard code" specific values within the guts of the function
+
+```{r}
+
+ciSim <- function(mu, sigma, sampleSize) {
+  ## Purpose: function simulates random Normal data and constructs a 95% CI
+  ## Arguments: 
+  ##    mu: population mean for Normal distribution from which samples are drawn
+  ##    sigma: population standard deviation for Normal distribution from which samples are drawn
+  ##    sampleSize: sample size to draw from Normal distribution
+  
+  result <- list(NULL)
+  normDatSim <- rnorm(n = sampleSize, mean = mu, sd = sigma)  # simulate a new random sample
+  result[1] <- t.test(normDatSim)$conf.int[1]                 # store lower bound of CI
+  result[2] <- t.test(normDatSim)$conf.int[2]                 # store upper bound of CI
+  result[3] <- (mu > result[1] & mu < result[2])              # store mu capture result
+  return(result)                                              # return our results
+}
+
+ciSim(mu = 34, sigma = 5, sampleSize = 15)
+
+```
+
+### let's use mosaic::do() which can "do" something many times without writing a loop
+
+```{r}
+library(mosaic)
+
+sim_results <- mosaic::do(100) * ciSim(mu = 34, sigma = 5, sampleSize = 15)
+sim_results
+
+# some handy tricks to get things into a data frame as desired
+sim_results_df <- 
+  sim_results %>%
+  transmute(lower = unlist(V1),    # unlist() simplifies to the object class inside the list element
+            upper = unlist(V2), 
+            muCapture = unlist(V3)) %>%
+  rownames_to_column() %>%    # handy function to create a column that indexes each row
+  mutate(rowname = parse_number(rowname))
+
+sim_results_df
+
+```
+
+### plot it
+
+```{r}
+sim_results_df %>%
+  ggplot() +
+  geom_segment(aes(    x = lower,    y = rowname, 
+                    xend = upper, yend = rowname, 
+                   color = muCapture)) + 
+  geom_vline(aes(xintercept = 34)) +      # mu reference is hard coded here because mu wasn't returned by `ciSim()`
+  xlab("Simulated confidence interval from Normal data") + 
+  ylab("Index of a CI based on a simulated random sample")
+
+
+# how often did our 95% CI actually capture mu? Easy!
+
+mean(sim_results_df$muCapture)
+
+```
+
+# Second part
+
+Consider this `csv` file:
+
+    Name, Age, Height
+    Alice, 21, 5.5
+    Bob, 25, 6.2
+    Charlie, 35, 5.9
+
+You can hard-code this into `R` as follows:
+
+```{r}
+library(knitr)
+library(dplyr)
+
+data_hard_code <- data.frame(
+    Name = c("Alice", "Bob", "Charlie"),
+    Age = c(21, 25, 35),
+    Name = c(5.5, 6.2, 5.9)
+)
+data_hard_code %>% knitr::kable()
+```
+
+Let's say we want to read the CSV file from memory, you can do this as follows:
+
+```{r}
+Name <- c("Jon", "Bill", "Maria", "Ben", "Tina")
+Age <- c(23, 41, 32, 58, 26)
+df <- data.frame(Name, Age)
+write.csv(df, "./data/data.csv", row.names=T)
+file_location <- "./data/data.csv"
+data_from_csv <- read.csv(file_location)
+
+data_from_csv %>% knitr::kable()
+```
+
+There are slightly more advanced and efficient methods:
+
+-   `read_csv` from Tidyverse
+-   `data.table` package in R
+
+Once you have a dataset, you can then begin your analyses:
+
+------------------------------------------------------------------------
+
+## Exploratory Data Analysis
+
+This is where `dplyr` and `ggplot2` are super-useful, because they facilitate **Exploratory Data Analysis**
+
+Since you are already familiar with these packages, I will go through them in ⚡️ speed.
+
+You'll hear this phrase thrown around very often:
+
+> "We need to clean the dataset"
+>
+> --- An anxious data scientist
+
+The first thing I want to ask is: *what makes a dataset clean?*
+
+Brainstorming:
+
+1.  Get rid of `NULL` and `NA` and `NaN` and `missing` entries
+
+2.  Making sure that all the values for a particular variable are of the same `data type`, e.g., `double`, or `character` or `logical`
+
+3.  Every variable should have its own column
+
+    -   A variable is something which holds "measurements"
+
+4.  Every observation should have its own row
+
+5.  Every cell, should have a unique value
+
+This is what packages like `dplyr`, `tidyr` and their predecessor `plyr` set out to achieve.
+
+This is where functions like:
+
+-   `pivot_wider()`
+-   `pivot_longer()` from `tidyr` are useful.
+
+#### `dplyr`
+
+The objective of `dplyr` is to provide a set of *"verbs"* for manipulating data.
+
+Let's take the following working example:
+
+1.  Cars (mpg) dataset
+
+```{r}
+library(ggplot2)
+head(mpg, 5) %>% knitr::kable()
+```
+
+2.  Iris (flower petal) dataset
+
+```{r}
+head(iris, 5) %>% knitr::kable()
+```
+
+Some examples are the following:
+
+1.  Select: selects a subset of the columns
+
+```{r}
+mpg %>% 
+select(c(model, displ, class))
+```
+
+2.  We have `mutate` which creates new columns from existing ones
+
+```{r}
+iris %>% 
+  mutate(Sepal.Area = Sepal.Length * Sepal.Width) %>% 
+  head(., 10) %>% 
+  knitr::kable()
+```
+
+3.  `filter`
+
+```{r}
+mpg %>% 
+filter(class == "compact")
+```
+
+Some other verbs are:
+
+-   `dplyr::summary()`, `dplyr::mutate()`
+-   `tidyr::pivot_longer()`, `tidyr::pivot_wider()`
+-   `left_join`, `right_join`, `inner_join`, `outer_join`
+
+## `ggplot2`
+
+`gg` in `ggplot2` stands for: **G**rammar of **G**raphics. There is NO `ggplot1`
+
+Since you guys are super familiar, let's look at a super quick example:
+
+We start off by decalring a `ggplot` object
+
+```{r}
+library(ggplot2)
+plt <- ggplot(iris)
+```
+
+Now can add points to it
+
+```{r}
+plt + geom_point(
+    aes(x=Petal.Length, y=Sepal.Length)
+)
+```
+
+If we want to color the points by `Species`
+
+```{r}
+plt + geom_point(
+    aes(x=Petal.Length, y=Sepal.Length, colour=Species)
+)
+```
+
+If we want to add trendlines to these points:
+
+```{r}
+plt + 
+geom_point(
+    aes(x=Petal.Length, y=Sepal.Length, colour=Species)
+) +  
+geom_smooth(
+    aes(x=Petal.Length, y=Sepal.Length)
+)
+```
+
+If we want a linear trendline then you can choose the method:
+
+If we want to add trendlines to these points:
+
+```{r}
+plt + 
+geom_point(
+    aes(x=Petal.Length, y=Sepal.Length, colour=Species)
+) +  
+geom_smooth(
+    aes(x=Petal.Length, y=Sepal.Length),
+    method = lm
+)
+```
+
+## `ggthemeassist`
+
+Done in Rstudio
+
+## More on **data types**
+
+1.  String, e.g. `r x <- "this is a character"; x`
+2.  Integer, e.g. `[1,2,3]`
+3.  Double, e.g. `[2.2, 3.14159, 0.9]`
+4.  Booleans, e.g. `TRUE/ FALSE`
+
+-   What are factors? Factors are categorical variables.
+
+Let's look at an example:
+
+`var` contains the country code for people in north america:
+
+```{r}
+var <- c(
+    "USA",
+    "USA",
+    "CAN",
+    "CAN",
+    "CAN",
+    "CAN",
+    "MEX",
+    "MEX"
+)
+var
+```
+
+To tell `R` that this is explicitly categorical and not just a vector of strings, you have to specify the following:
+
+```{r}
+as.factor(var)
+```
+
+Let's look at another example
+
+```{r}
+head(iris, 3) %>% 
+knitr::kable()
+
+iris$Species
+```
+
+Similarly, if we look at `mpg`
+
+```{r}
+head(mpg, 3) %>% 
+knitr::kable()
+```
+
+Let's have a look at `class`
+
+```{r}
+as.factor(mpg$class)
+```
+
+Similarly, we can have a look at the manufacturer:
+
+```{r}
+as.factor(mpg$manufacturer)
+```
+
+This is where the `forcats` package is really useful:
+
+```{r}
+library(forcats)
+manufacturer <- as.factor(mpg$manufacturer)
+fct_reorder(manufacturer, mpg$hwy, min)
+```
+
+We will be coming back to this in \~3 weeks when we dfo logistic regression.
+
+## `purrr`
+
+This package provides a set of functional programming tools. It's best illustrated through an example:
+
+Consider the following procedure: We want to
+
+1.  Filter `iris` by species
+2.  COmpute the `Sepal.Area` as `Sepal.Length` $\times$ `Sepal.Width`
+3.  Find the average of `Sepal.Area` for every flower in the species
+
+``` r
+iris %>% 
+mutate(Area = Sepal.Length * Sepal.Width) %>% 
+group_by()
+summarize()
+```
+
+Consider the following task:
+
+1.  Take a number `i` from $1 \dots 10$
+2.  Create a matrix with entries of dimension 1 ... `i^2` $\times$ `i`
+3.  Compute the average of the elements of the matrix
+4.  Print it
+
+One way of doing this is as follows:
+
+```{r}
+results <- c()
+for (i in 1:10){
+    M <- matrix(
+        c(1:i*i), nrow=i
+    )
+    results[i] <- mean(M)
+}
+results
+```
+
+A functional way to think about this is as follows:
+
+$$i \rightarrow M_{i \times i} \rightarrow mean(M)$$
+
+```{r}
+library(purrr)
+map(
+    1:10,
+    function(i){
+        mean(
+            matrix(
+                c(1:i*i), nrow=i
+            )
+        )
+    }
+)
+```
