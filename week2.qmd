@@ -641,7 +641,7 @@ mean(sim_results_df$muCapture)
     -   `ggplot2`
 
     -   `ggPlotThemes`
-    
+
 # csv
 
 Consider this `csv` file:
