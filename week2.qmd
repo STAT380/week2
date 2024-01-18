@@ -6,6 +6,8 @@ format: ipynb
 
 # Some tools we'll meet
 
+- Random Topic
+
 -   Facts & extensions from the reading
     -   Create vectors using `c()`, `:`, `seq()`, `rep()`.
 
