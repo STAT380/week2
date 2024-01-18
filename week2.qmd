@@ -1,8 +1,14 @@
 ---
 title: "rbasics"
 # format: html
-format: ipynb
+#format: pdf
+format: html
 ---
+# add some topics 
+aaa
+bbb
+ccc
+
 
 # Some tools we'll meet
 
